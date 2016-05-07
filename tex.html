@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Tex preview</title>
+    <script src="/stackp/promisejs/master/promise.min.js"></script>
+    <script src="/kdmon/texlive.js/master/pdftex.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+  </head>
+  <body onload="init()">
+    <div id="output">Compiling Tex file ... </div>
+    <script>
+      function init() {
+        console.log("getting "+ location.search.substr(1));
+        var params = location.search.split("&url=");
+        var url = params[1];
+        if (url == undefined || url == '') {
+         $('#output').html('No url supplied.');
+         return;
+        }
+        $.get(params[1], function (data) {
+          console.log("fetch done");
+
+          // check that begin document tag exists, otherwise add it
+          if (data.indexOf('\begin{document}') == -1)
+            data = '\begin{document} \n' + data + '\end{document}';
+
+          // check if text has a document class, otherwise add book class as default
+          if (data.indexOf('documentclass') == -1)
+            data = '\documentclass[a4paper,11pt]{book} \n' + data;
+
+          compile(data);
+        }).fail(function () {$('#output').html('No Tex document at url.');});
+      }
+
+      var appendOutput = function(msg) {
+        var content = document.getElementById("output").textContent;
+        var output = document.getElementById("output");
+        output.textContent = content + "\r\n" + msg;
+        output.scrollTop = 999999;
+        console.log(msg);
+      }
+
+      function compile (source_code) {
+        console.log ("started compile");
+        var pdftex = new PDFTeX();
+        pdftex.on_stdout = appendOutput;
+        pdftex.on_stderr = appendOutput;
+        var start_time = new Date().getTime();
+        pdftex.compile(source_code).then(function(pdf_dataurl) {
+          console.log ("Compile finished");
+          var end_time = new Date().getTime();
+          console.info("Execution time: " + (end_time-start_time)/1000+' sec');
+          if(pdf_dataurl === false)
+            return;
+          $('body').html('<iframe style="width: 100%; height: 100hv" src="' + pdf_dataurl + '"></iframe>"');
+        });
+
+      }
+    </script>
+  </body>
+</html>
