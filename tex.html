@@ -28,7 +28,7 @@
           // check if text has a document class, otherwise add book class as default
           if (data.indexOf('documentclass') == -1)
             data = '\documentclass[a4paper,11pt]{book} \n' + data;
-
+          console.log(data);
           compile(data);
         }).fail(function () {$('#output').html('No Tex document at url.');});
       }
