@@ -22,12 +22,12 @@
           console.log("fetch done");
 
           // check that begin document tag exists, otherwise add it
-          if (data.indexOf('\begin{document}') == -1)
-            data = '\begin{document} \n' + data + '\end{document}';
+          if (data.indexOf('\\begin{document}') == -1 && data.indexOf('\\begin {document}') == -1)
+            data = '\\begin{document} \n' + data + '\end{document}';
 
           // check if text has a document class, otherwise add book class as default
           if (data.indexOf('documentclass') == -1)
-            data = '\documentclass[a4paper,11pt]{book} \n' + data;
+            data = '\\documentclass[a4paper,11pt]{book} \n' + data;
           console.log(data);
           compile(data);
         }).fail(function () {$('#output').html('No Tex document at url.');});
